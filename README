@@ -1,0 +1,3 @@
+Generates a SVG graph of the ping times collected from the output of a ping -D hostname
+
+Initial idea for the SVG graph: the first script used in Refactoring in Ruby (ISBN-13: 978-0321545046)
