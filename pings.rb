@@ -34,36 +34,42 @@ def spark(centre_x, centre_y, value)
   #{text(centre_x, centre_y, value, 12)}"
 end
 
-def scaled_point(width, height, min_x, max_x, min_y, max_y, point)
-  [ ((point[0]-min_x)*width)/(max_x-min_x), ((max_y-point[1])*height)/(max_y-min_y) ]
-end
-
 def svg_coord(point)
   "#{point[0]},#{point[1]}"
 end
 
-def scaled_points(width, height, min_x, max_x, min_y, max_y, points)
-  scaled_points = []
-  points.each { |p| scaled_points << svg_coord(scaled_point(width, height, min_x, max_x, min_y, max_y, p))}
-  scaled_points
+class ScaledGraph
+  attr_accessor :width, :height, :min_x, :min_y, :max_x, :max_y
+
+  def initialize(width, height, points)
+    xs = points.collect { |x| x[0] }
+    ys = points.collect { |x| x[1] }
+    @width = width
+    @height = height
+    @min_y = ys.min
+    @max_y = ys.max
+    @min_x = xs.min
+    @max_x = xs.max
+  end
+  
+  def scaled_point(point)
+    [ ((point[0]-@min_x)*@width)/(@max_x-@min_x), ((@max_y-point[1])*@height)/(@max_y-@min_y) ]
+  end
 end
 
 #print svg_coord(scaled_point(width, height, 0, 2500, 0, 40331, [0, 0]))
 
 def svg(width, height, points, title)
-  xs = points.collect { |x| x[0] }
-  ys = points.collect { |x| x[1] }
-  min_y = ys.min
-  max_y = ys.max
-  min_x = xs.min
-  max_x = xs.max
-  scaled_points = scaled_points(width, height, min_x, max_x, min_y, max_y, points)
-
-  start_line = scaled_point(width, height, min_x, max_x, min_y, max_y, [0, 0])
-  stop_line = scaled_point(width, height, min_x, max_x, min_y, max_y, [points[-1][0], 0])
+  graph = ScaledGraph.new(width, height, points)
   
-  spark = scaled_point(width, height, min_x, max_x, min_y, max_y, points[-1])
-  title_start = scaled_point(width, height, min_x, max_x, min_y, max_y, [0, -0.05*(max_y)])
+  scaled_points = []
+  points.each { |p| scaled_points << svg_coord(graph.scaled_point(p))}
+
+  start_line = graph.scaled_point([0, 0])
+  stop_line = graph.scaled_point([points[-1][0], 0])
+  
+  spark = graph.scaled_point(points[-1])
+  title_start = graph.scaled_point([0, -0.05*(graph.max_y)])
 
   %Q{<svg xmlns="http://www.w3.org/2000/svg" 
         xmlns:xlink="http://www.w3.org/1999/xlink" >
