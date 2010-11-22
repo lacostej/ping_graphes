@@ -60,8 +60,7 @@ end
 def svg(width, height, points, title)
   graph = ScaledGraph.new(width, height, points)
   
-  scaled_points = []
-  points.each { |p| scaled_points << svg_coord(graph.scaled_point(p))}
+  scaled_points = points.collect { |p| svg_coord(graph.scaled_point(p))}
 
   start_line = graph.scaled_point([0, 0])
   stop_line = graph.scaled_point([points[-1][0], 0])
