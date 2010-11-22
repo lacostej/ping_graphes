@@ -55,6 +55,10 @@ class ScaledGraph
   def scaled_point(point)
     [ ((point[0]-@min_x)*@width)/(@max_x-@min_x), ((@max_y-point[1])*@height)/(@max_y-@min_y) ]
   end
+  
+  def title_start_point()
+    [ @width *0.2, scaled_point([0, -0.05*(@max_y)])[1] ]
+  end
 end
 
 def svg(width, height, points, title)
@@ -66,14 +70,14 @@ def svg(width, height, points, title)
   stop_line = graph.scaled_point([points[-1][0], 0])
   
   spark = graph.scaled_point(points[-1])
-  title_start = graph.scaled_point([0, -0.05*(graph.max_y)])
+  title_start = graph.title_start_point()
 
   %Q{<svg xmlns="http://www.w3.org/2000/svg" 
         xmlns:xlink="http://www.w3.org/1999/xlink" >
  #{line(start_line[0], start_line[1], stop_line[0], stop_line[1])}
  #{polyline(scaled_points)}
  #{spark(spark[0], spark[1], points[-1][1])}
- #{text(width *0.2, title_start[1], title, 20)}
+ #{text(title_start[0], title_start[1], title, 20)}
 </svg>}
 end
 
