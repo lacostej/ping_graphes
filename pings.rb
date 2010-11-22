@@ -57,7 +57,8 @@ class ScaledGraph
   end
   
   def title_start_point()
-    [ @width *0.2, scaled_point([0, -0.05*(@max_y)])[1] ]
+    # 20% from the left, 5% below the 0 line
+    [@width * 0.2, scaled_point([0, -0.05*@max_y])[1]]
   end
 end
 
@@ -94,7 +95,7 @@ class PingOutputFile
         dest = $1
       end
       # [1290183567.704183] 64 bytes from ew-in-f147.1e100.net (74.125.77.147): icmp_req=2 ttl=46 time=7647 ms
-      # [ '1290183567.704183' , '7646' ]
+      # [ 1290183567.704183 , 7646 ]
       if line =~ /\[(.*)\].*time=(.*) ms/
         l = [$1, $2]
         ping_time = Integer(l[1])
