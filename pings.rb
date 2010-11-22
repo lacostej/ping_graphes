@@ -57,8 +57,6 @@ class ScaledGraph
   end
 end
 
-#print svg_coord(scaled_point(width, height, 0, 2500, 0, 40331, [0, 0]))
-
 def svg(width, height, points, title)
   graph = ScaledGraph.new(width, height, points)
   
@@ -84,22 +82,15 @@ end
 
 def load_values(ping_output_file)
   values = []
-  first = nil
   File.open(ping_output_file).each do |line|
     # [1290183567.704183] 64 bytes from ew-in-f147.1e100.net (74.125.77.147): icmp_req=2 ttl=46 time=7647 ms
     # [ '1290183567.704183' , '7646' ]
     if line =~ /\[(.*)\].*time=(.*) ms/
       l = [$1, $2]
-      time_travel = Integer(l[1])
-      sent = Integer((Float(l[0]) - Float(time_travel) / 1000))
-      if first == nil
-        first = sent
-        sent = 0
-      else
-        sent = sent - first
-      end
-      #print "#{sent} <> #{time_travel}"
-      val = [sent, time_travel]
+      ping_time = Integer(l[1])
+      sent = (Float(l[0]) - Float(ping_time) / 1000)
+      #print "#{sent} <> #{ping_time}"
+      val = [sent, ping_time]
       values << val
     end
   end
