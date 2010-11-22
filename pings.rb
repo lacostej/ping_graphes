@@ -93,9 +93,9 @@ class PingOutputFile
       if line =~ /PING (.*) \(.*/
         dest = $1
       end
-      if line =~ /\[(.*)\].*time=(.*) ms/
       # [1290183567.704183] 64 bytes from ew-in-f147.1e100.net (74.125.77.147): icmp_req=2 ttl=46 time=7647 ms
       # [ '1290183567.704183' , '7646' ]
+      if line =~ /\[(.*)\].*time=(.*) ms/
         l = [$1, $2]
         ping_time = Integer(l[1])
         sent = (Float(l[0]) - Float(ping_time) / 1000)
