@@ -79,41 +79,33 @@ def svg(width, height, points, title)
 end
 
 #########################################################
+class PingOutputFile
+  attr_accessor :pings, :title
 
-def load_values(ping_output_file)
-  values = []
-  File.open(ping_output_file).each do |line|
-    # [1290183567.704183] 64 bytes from ew-in-f147.1e100.net (74.125.77.147): icmp_req=2 ttl=46 time=7647 ms
-    # [ '1290183567.704183' , '7646' ]
-    if line =~ /\[(.*)\].*time=(.*) ms/
-      l = [$1, $2]
-      ping_time = Integer(l[1])
-      sent = (Float(l[0]) - Float(ping_time) / 1000)
-      #print "#{sent} <> #{ping_time}"
-      val = [sent, ping_time]
-      values << val
+  def initialize(ping_output_file)
+    dest = ''
+    values = []
+    File.open(ping_output_file).each do |line|
+      # PING google.com (74.125.77.147) 56(84) bytes of data.
+      if line =~ /PING (.*) \(.*/
+        dest = $1
+      end
+      if line =~ /\[(.*)\].*time=(.*) ms/
+      # [1290183567.704183] 64 bytes from ew-in-f147.1e100.net (74.125.77.147): icmp_req=2 ttl=46 time=7647 ms
+      # [ '1290183567.704183' , '7646' ]
+        l = [$1, $2]
+        ping_time = Integer(l[1])
+        sent = (Float(l[0]) - Float(ping_time) / 1000)
+        #print "#{sent} <> #{ping_time}"
+        val = [sent, ping_time]
+        values << val
+      end
     end
+    @pings = values
+    time_s = Time.at(Float(values[0][0]))
+    @title = "PING #{dest} #{time_s} (#{ping_output_file})"
   end
-  values
 end
-
-def get_title(ping_output_file)
-  dest = ''
-  time = ''
-  File.open(ping_output_file).each do |line|
-    if line =~ /PING (.*) \(.*/
-      dest = $1
-    end
-    if line =~ /\[(.*)\].*time=(.*) ms/
-      time = $1
-      break
-    end
-  end
-  time_s = Time.at(Float(time))
-  title = "PING #{dest} #{time_s} (#{ping_output_file})"
-end
-
-
 
 if (ARGV.length != 1)
   if ARGV.length > 1
@@ -125,12 +117,8 @@ if (ARGV.length != 1)
   exit(-1)
 end
     
-ping_output_file = ARGV[0]
+ping_file = PingOutputFile.new(ARGV[0])
 
-points = load_values(ping_output_file)
-
-title = get_title(ping_output_file)
-
-svgContent = svg(width, height, points, title)
+svgContent = svg(width, height, ping_file.pings, ping_file.title)
 
 puts svgContent
